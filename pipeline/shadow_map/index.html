@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Shadow map - Canvas Shader Development</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Shadow map";
+        var mkdocs_page_input_path = "pipeline/shadow_map.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Canvas Shader Development
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Welcome</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../what_is_pipeline/">What is a Pipeline?</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../making_a_pipeline/">Making a Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fabulous_pipeline/">Fabulous Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Material Program</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Pass Program</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Pipeline options</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Shadow map</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#the-boring-json-side">The boring JSON side</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-fun-shader-part">The fun shader part</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#the-vertex-shader">The vertex shader</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-fragment-shader">The fragment shader</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sampling-shadows">Sampling shadows</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../pbr.md">PBR</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Colored Lights (WIP)</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Materials</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="../../material/material_shader.md">Material shader</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Material</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Material map</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="../../frex/index.md">FREX Shader API</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Canvas Shader Development</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Pipeline</li>
+      <li class="breadcrumb-item active">Shadow map</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="the-shadow-map">The Shadow Map</h1>
+<p>The shadow map is the image that stores the depth from the sun's perspective. By comparing the depth from the sun's point of view with the depth from the player's point of view, we can tell whether there are shadows. Since this requires rendering the entire scene a second time, it's significantly slower than not using shadows at all.</p>
+<h2 id="the-boring-json-side">The boring JSON side</h2>
+<p>To start, you need to create the shadow configuration JSON file. You can create this directly in your pipeline description file, or you can use another file and <code>include</code> the file in your pipeline description file.</p>
+<p>Let's assume you're doing the latter, and create <code>my_shadow_config.json5</code>. This can be done anywhere under the <code>assets</code> folder. See comments for specific parameter descriptions.</p>
+<pre><code class="language-json5">{
+    images: [
+        {
+            name: &quot;my_shadow_map&quot;,
+
+            // Size can be whatever you want, but it's recommended to use a power of 2, like 1024
+            size: 1024,
+
+            internalFormat: &quot;DEPTH_COMPONENT32&quot;,
+            pixelFormat: &quot;DEPTH_COMPONENT&quot;,
+            pixelDataType: &quot;FLOAT&quot;,
+            target: &quot;TEXTURE_2D_ARRAY&quot;,
+            depth: 4,
+            texParams: [
+                {name: &quot;TEXTURE_MIN_FILTER&quot;, val: &quot;LINEAR&quot;},
+                {name: &quot;TEXTURE_MAG_FILTER&quot;, val: &quot;LINEAR&quot;},
+                {name: &quot;TEXTURE_WRAP_S&quot;, val: &quot;CLAMP_TO_EDGE&quot;},
+                {name: &quot;TEXTURE_WRAP_T&quot;, val: &quot;CLAMP_TO_EDGE&quot;},
+                {name: &quot;TEXTURE_COMPARE_MODE&quot;, val: &quot;COMPARE_REF_TO_TEXTURE&quot;},
+                {name: &quot;TEXTURE_COMPARE_FUNC&quot;, val: &quot;LEQUAL&quot;}
+            ]
+        }
+    ],
+
+    framebuffers: [
+        {
+            name: &quot;my_shadow_framebuffer&quot;,
+
+            // The shadow pass only writes to depth, so we provide a depth attachment
+            depthAttachment: {
+                image: &quot;my_shadow_map&quot;,
+                clearDepth: 1.0
+            },
+        }
+    ],
+
+    skyShadows: {
+        framebuffer: &quot;my_shadow_framebuffer&quot;,
+
+        // These are up to your personal preference
+        allowEntities: true,
+        allowParticles: true,
+        supportForwardRender: true,
+
+        // You can name the shaders whatever you want, and place them
+        // wherever you want, but make sure you specify the correct path 
+        // here, relative to your assets/namespace/... folder
+        vertexSource: &quot;my_pipeline_namespace:shaders/.../shadow.vert&quot;,
+        fragmentSource: &quot;my_pipeline_namespace:shaders/.../shadow.frag&quot;,
+
+        // Parameters to glPolygonOffset(offsetSlopeFactor, offsetBiasUnits)
+        offsetSlopeFactor: 1.1,
+        offsetBiasUnits: 4.0,
+
+        // Cascade radii are up to personal preference. 
+        // Aim for a balance between detail up close and detail far away.
+        // 
+        // There are four cascades, notice that only three numbers are
+        // supplied here.
+        // This is because the 0th cascade always covers the largest
+        // allowed shadow render distance.
+        cascadeRadius: [96, 32, 12]
+    },
+
+    sky: {
+        // The angle of the sun. 0 means the sun follows the same 
+        // trajectory as vanilla. Negative numbers are allowed.
+        defaultZenithAngle: 40
+    }
+}
+</code></pre>
+<h2 id="the-fun-shader-part">The fun shader part</h2>
+<p>Now that we have the pipeline shadow descriptor done, we can move on to writing the actual shadow shaders. Both the vertex and fragment shaders are surprisingly simple, because you're not doing any fancy shading.</p>
+<p>The shadow program will be run multiple times, once for each cascade.</p>
+<h3 id="the-vertex-shader">The vertex shader</h3>
+<p>Navigate to where you created your vertex shader. If you're wondering where a good place is, I like them in the same directory as the material program shaders, or the gbuffer shaders: <code>assets/my_namespace/shaders/gbuffer/shadow.vert</code></p>
+<pre><code class="language-glsl">#include frex:shaders/api/vertex.glsl
+#include frex:shaders/api/view.glsl
+
+uniform int frxu_cascade;
+
+void frx_pipelineVertex() {
+    // Move from model space to camera space
+    frx_vertex += frx_modelToCamera;
+
+    // Multiply for the shadow projection with the current cascade
+    gl_Position = frx_shadowViewProjectionMatrix(frxu_cascade) * frx_vertex;
+}
+</code></pre>
+<p>As you can see, this shader is very simple; all we need to do is transform vertices to the sun's point of view.</p>
+<h3 id="the-fragment-shader">The fragment shader</h3>
+<p>Create the fragment shader in the path you decided upon earlier. </p>
+<pre><code class="language-glsl">#include frex:shaders/api/material.glsl
+#include frex:shaders/api/fragment.glsl
+
+void frx_pipelineFragment() {
+  gl_FragDepth = gl_FragCoord.z;
+}
+</code></pre>
+<p>This is even simpler than the vertex shader. Since there are no color attachments, all we need to do is write to depth.</p>
+<p>Now, if you reload your pipeline, you should be at a point where the shadow map is rendered properly! However, we want to use the shadow map to render shadows in our lighting system.</p>
+<h3 id="sampling-shadows">Sampling shadows</h3>
+<p>This section will be a little abstract, because shadow rendering can go from being very simple to very complicated, and there are a bunch of different moving parts.</p>
+<p>To be able to sample shadows, we need to first set up the shadow positions using some fancy transformations. </p>
+<blockquote>
+<p>Note: If you decide to do these transformations in the vertex shader, keep in mind that beyond 12-16 chunks render distance, there are likely to be more vertices than pixels on the screen, making your code slower.</p>
+</blockquote>
+<p>First, copy these helper functions into your code. They're annoying to write and give us the information we need regarding cascades, etc.</p>
+<pre><code class="language-glsl">vec3 shadowDist(int cascade, vec4 pos) {
+    vec4 c = frx_shadowCenter(cascade);
+    return abs((c.xyz - pos.xyz) / c.w);
+}
+
+// Function for obtaining the cascade level
+int selectShadowCascade(vec4 shadowViewSpacePos) {
+    vec3 d3 = shadowDist(3, shadowViewSpacePos);
+    vec3 d2 = shadowDist(2, shadowViewSpacePos);
+    vec3 d1 = shadowDist(1, shadowViewSpacePos);
+
+    if(all(lessThan(d3, vec3(1.0)))) { return 3; }
+    if(all(lessThan(d2, vec3(1.0)))) { return 2; }
+    if(all(lessThan(d1, vec3(1.0)))) { return 1; }
+
+    return 0;
+}
+</code></pre>
+<p>Now, let's set up the shadow position itself. In the code below, <code>cameraSpacePos</code> refers to the position in the same space as <code>frx_vertex.xyz</code>. If you are in the material program, you can use <code>frx_vertex.xyz</code>, otherwise you will need to set up this position yourself using matrix transformations.</p>
+<pre><code class="language-glsl">vec4 shadowViewPos = frx_shadowViewMatrix * vec4(cameraSpacePos, 1.0);
+int cascade = selectShadowCascade(shadowViewPos);
+
+vec4 shadowClipPos = frx_shadowProjectionMatrix(cascade) * shadowViewPos;
+vec3 shadowScreenPos = (shadowClipPos.xyz / shadowClipPos.w) * 0.5 + 0.5;
+</code></pre>
+<p>Now that we have the shadow screen position, we can sample shadows.</p>
+<blockquote>
+<p>Another note: it's normal to be confused about the shadow transformations. They're pretty unintuitive. To keep it simple, <code>shadowViewPos</code> is the actual world-scaled position of the world from the sun's perspective, but with the origin and axes relative to the camera. <code>shadowClipPos</code> is the transformation of <code>shadowViewPos</code> into device coordinates so that geometry clipping can happen. <code>shadowScreenPos</code> is the screen-relative coordinates of the shadow map, and it's what we can use to sample the image. Think of it as texture coordinates, or texcoords for the shadow map.</p>
+</blockquote>
+<p>If you want to sample your shadow map in the material program:</p>
+<pre><code class="language-glsl">float shadowFactor = texture(frxs_shadowMap, vec4(shadowScreenPos.xy, cascade, shadowScreenPos.z));
+float rawShadowDepth = texture(frxs_shadowMapTexture, vec3(shadowScreenPos.xy, cascade)).r;
+</code></pre>
+<p>If you want to sample your shadow map in a pass shader or fullscreen pass, you will need to set up the sampler manually, using the name of the shadow map image you created. If you want to get the raw shadow factor, you should declare the sampler as <code>sampler2DArrayShadow</code>. If you want raw depth, declare the sampler as <code>sampler2DArray</code>. If you want both, set up two different samplers that point to the same image.</p>
+<pre><code class="language-glsl">// In the global scope
+uniform sampler2DArrayShadow u_myShadowMap;
+uniform sampler2DArray u_myShadowMapTexture;
+
+// In the place where you want factors
+float shadowFactor = texture(u_myShadowMap, vec4(shadowScreenPos.xy, cascade, shadowScreenPos.z));
+float rawShadowDepth = texture(u_myShadowMapTexture, vec3(shadowScreenPos.xy, cascade)).r;
+</code></pre>
+<p>Use the shadow factor you get from sampling the shadow map for whatever purpose you want! </p>
+<p>You can also sample the shadow map multiple times with tiny offsets to "blur" the shadows, causing less artifacts when moving. When you are comfortable with shadow rendering, you can look into more advanced shadow sampling techniques, like variable penumbra shadows, which adjusts the blur amount based on how far the shadow caster is to the ground.</p>
+<p>As a final note, you will notice that the back faces of blocks still let a bit of sunlight through. This is because simply applying the shadow factor to your lighting isn't exactly realistic - you should multiply by the dot product of the normal vector and the light vector. This multiplication both makes your lighting look more realistic and makes sure that the back faces of blocks are properly in shadow.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../fabulous_pipeline/" class="btn btn-neutral float-left" title="Fabulous Pipeline"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../fabulous_pipeline/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
