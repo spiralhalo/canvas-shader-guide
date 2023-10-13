@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>What is a Pipeline? - Canvas Shader Development</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "What is a Pipeline?";
+        var mkdocs_page_input_path = "pipeline\\what_is_pipeline.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Canvas Shader Development
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Welcome</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">What is a Pipeline?</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#what-is-a-material-shader">What is a material shader?</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#what-is-a-shader-pack">What is a shader pack?</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../making_a_pipeline/">Making a Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fabulous_pipeline/">Fabulous Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Material Program</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Pass Program</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Pipeline options</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../shadow_map.md">Shadow map</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../pbr.md">PBR</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Colored Lights (WIP)</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Materials</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="../../material/material_shader.md">Material shader</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Material</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Material map</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="../../frex/index.md">FREX Shader API</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Canvas Shader Development</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Pipeline</li>
+      <li class="breadcrumb-item active">What is a Pipeline?</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="what-is-a-pipeline">What is a Pipeline?</h1>
+<p>Canvas Pipeline is a configurable set of shader program and passes with the capability of shading the full game as well as GUI items. Additionally, a Pipeline also enables specific rendering features such as shadows, post-processing, and PBR (work in progress).</p>
+<h2 id="what-is-a-material-shader">What is a material shader?</h2>
+<p>Game objects like terrain, entities, and particles are rendered with materials. Therefore the program used to render them is known as the Material Program.</p>
+<p>The Material Program is controlled by the Pipeline, but it may be extended by mods and resource packs via material shaders. To put it simply, material shaders control the early part of object rendering before it's being passed over to the Pipeline.</p>
+<p>There is also the depth-pass shader, which works like material shader but for shadow pass.</p>
+<p>For more details, see the Material Program and Material Shader sections. (TODO)</p>
+<h2 id="what-is-a-shader-pack">What is a shader pack?</h2>
+<p>In the past, custom Minecraft shaders are distributed as .zip files called "shader pack" (or simply "shader"). This holds true to this day.</p>
+<p>However, Canvas shaders are distributed as <strong>resource packs</strong>. These resource packs may contain:
+- One or more Pipeline(s),
+- Material shaders,
+- Material maps,
+- Language files, textures, and other common resources.</p>
+<p>As Canvas packs contain shaders, it makes sense to call them "shader pack" as well.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../.." class="btn btn-neutral float-left" title="Welcome"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../making_a_pipeline/" class="btn btn-neutral float-right" title="Making a Pipeline">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../.." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../making_a_pipeline/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
