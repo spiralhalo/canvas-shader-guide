@@ -22,7 +22,7 @@ just/like/this.txt
 
 ### For non-shader developer
 
-You can still contribute by turning FREX Shader API documentations from the shader file comments into markdown files!
+At the moment, you can contribute by turning FREX Shader API documentations from the shader file comments into markdown files.
 
 The file structure would be `docs/frex/apiname.md`. For example `world.h` would translate to `world.md`. I will handle proper formatting later.
 
