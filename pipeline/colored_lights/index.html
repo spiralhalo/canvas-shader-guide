@@ -63,6 +63,24 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Colored Lights (WIP)</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#block-light-api">Block Light API</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pipeline-api">Pipeline API</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#shader-api">Shader API</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#material-pipeline-write-shaders">Material &amp; Pipeline Write Shaders</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pipeline-pass-shaders">Pipeline Pass Shaders</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#occlusion-data">Occlusion Data</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#normal-offset">Normal Offset</a>
+    </li>
+        </ul>
+    </li>
     </ul>
                   </li>
               </ul>
@@ -108,7 +126,6 @@
 <p>This is a feature in Canvas that adds <strong>client-side</strong> colored lighting using the flood-fill algorithm. The data is firstly and priorly absorbed from the block light API, then the item light API, and last fallback being the vanilla light level.</p>
 <p>The algorithm works with light propagation hooking to a region (chunk) building for block updates, which was already optimized through occlusion culling. This ensures minimal memory usage.</p>
 <p>The actual propagation and texture uploads are done in the Render Thread. Only queued regions are updated to minimize impact on frame time.</p>
-<h1 id="the-api">The API</h1>
 <h2 id="block-light-api">Block Light API</h2>
 <p>This is expressed with json files that contain color <em>(rgb)</em> data and light level data <em>(intensity)</em>.</p>
 <p>With two root objects, you can specify the default light values (for the normal default block state) using the <code>"defaultLight"</code> object, and the variants (for each unique block state) light values using the <code>"variants"</code> object. </p>
