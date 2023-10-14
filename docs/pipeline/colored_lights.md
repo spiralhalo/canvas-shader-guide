@@ -4,7 +4,6 @@ This is a feature in Canvas that adds **client-side** colored lighting using the
 The algorithm works with light propagation hooking to a region (chunk) building for block updates, which was already optimized through occlusion culling. This ensures minimal memory usage.
 
 The actual propagation and texture uploads are done in the Render Thread. Only queued regions are updated to minimize impact on frame time.
-# The API
 ## Block Light API
 This is expressed with json files that contain color *(rgb)* data and light level data *(intensity)*.
 
