@@ -11,7 +11,7 @@ nav:
     - Pipeline options: dummy.md
     - Shadow map: pipeline/shadow_map.md
     - PBR: pipeline/pbr.md
-    - Colored Lights (WIP): dummy.md
+    - Colored Lights (WIP): pipeline/colored_lights.md
   - Materials:
     - Material shader: material/material_shader.md
     - Material: dummy.md
