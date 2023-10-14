@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Colored Lights (WIP) - Canvas Shader Development</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Colored Lights (WIP)";
+        var mkdocs_page_input_path = "pipeline/colored_lights.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Canvas Shader Development
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Welcome</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Pipeline</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../what_is_pipeline/">What is a Pipeline?</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../making_a_pipeline/">Making a Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fabulous_pipeline/">Fabulous Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Material Program</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Pass Program</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Pipeline options</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../shadow_map/">Shadow map</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../pbr.md">PBR</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Colored Lights (WIP)</a>
+    <ul class="current">
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Materials</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="../../material/material_shader.md">Material shader</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Material</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../dummy.md">Material map</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="../../frex/index.md">FREX Shader API</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Canvas Shader Development</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Pipeline</li>
+      <li class="breadcrumb-item active">Colored Lights (WIP)</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="colored-lights-wip">Colored Lights (WIP)</h1>
+<p>This is a feature in Canvas that adds <strong>client-side</strong> colored lighting using the flood-fill algorithm. The data is firstly and priorly absorbed from the block light API, then the item light API, and last fallback being the vanilla light level.</p>
+<p>The algorithm works with light propagation hooking to a region (chunk) building for block updates, which was already optimized through occlusion culling. This ensures minimal memory usage.</p>
+<p>The actual propagation and texture uploads are done in the Render Thread. Only queued regions are updated to minimize impact on frame time.</p>
+<h1 id="the-api">The API</h1>
+<h2 id="block-light-api">Block Light API</h2>
+<p>This is expressed with json files that contain color <em>(rgb)</em> data and light level data <em>(intensity)</em>.</p>
+<p>With two root objects, you can specify the default light values (for the normal default block state) using the <code>"defaultLight"</code> object, and the variants (for each unique block state) light values using the <code>"variants"</code> object. </p>
+<p>Inside those objects, you can express the RGB color data with <code>"red":</code>, <code>"green":</code> and <code>"blue":"</code>. The intensity is expressed through <code>lightLevel":</code> within the <strong>0-15</strong> range.</p>
+<p>The fields are optional and may fallback to the fields in <code>"defaultLight"</code> if not present, and if there is no <code>"defaultlight"</code> object, it will simply fall back to the values that are <strong>server-side</strong>.</p>
+<p>These files must be contained in the following paths accordingly: <code>namespace:lights/block</code>, <code>namespace:lights/fluid</code>.</p>
+<p>The API is designed based on both <strong>Material Map</strong> and <strong>Item Light APIs</strong>.</p>
+<p>Example json:</p>
+<pre><code class="language-json5">{
+  &quot;defaultLight&quot;: {
+    &quot;red&quot;: 0.2,
+    &quot;green&quot;: 0.2,
+    &quot;blue&quot;: 0.2
+  },
+  &quot;variants&quot;: {
+    &quot;color=red&quot;: {
+      &quot;lightLevel&quot;: 14.0,
+      &quot;red&quot;: 1.0
+    },
+    &quot;color=green&quot;: {
+      &quot;lightLevel&quot;: 14.0,
+      &quot;green&quot;: 1.0
+    },
+    &quot;color=blue&quot;: {
+      &quot;lightLevel&quot;: 14.0,
+      &quot;blue&quot;: 1.0
+    }
+  }
+}
+
+</code></pre>
+<p><strong>Note</strong> that due to this feature being client-side, it won't affect server-side light values. To achieve harmony between visuals and gameplay, mods would require synchronizing server-side light values via other means. Care needs to be taken as <a href="https://en.wikipedia.org/wiki/Relative_luminance">luminance</a> is perceived differently in colored lights than vanilla lighting.</p>
+<h2 id="pipeline-api">Pipeline API</h2>
+<p>This feature is not recognized by default. To ensure your pipeline has the colored lighting feature on, you must include it in the json file of the pipeline as an object like so:</p>
+<pre><code class="language-json5">  coloredLights: {
+    useOcclusionData: false
+  }
+</code></pre>
+<h2 id="shader-api">Shader API</h2>
+<p>To take advantage of this feature in your shader files, you can call it using specific includes (depending on what functions you want, and what type of shaders you are using the feature on).</p>
+<h3 id="material-pipeline-write-shaders">Material &amp; Pipeline Write Shaders</h3>
+<pre><code class="language-glsl">#ifdef COLORED_LIGHTS_ENABLED
+
+uniform sampler2D frxs_lightData;
+
+vec4 frx_getLightFiltered(worldPos);
+vec4 frx_getLightRaw(worldPos);
+vec3 frx_getLight(worldPos, fallback);
+
+#endif
+</code></pre>
+<p>You get a predefined sampler of the light data, with functions that are explained below.</p>
+<h3 id="pipeline-pass-shaders">Pipeline Pass Shaders</h3>
+<p>Including the path <code>frex:shaders/api/light.glsl</code> to your shader program, you gain access to multiple functions like:</p>
+<pre><code class="language-glsl">vec4 frx_getLightFiltered(sampler2D lightSampler, vec3 worldPos);
+
+vec4 frx_getLightRaw(sampler2D lightSampler, vec3 worldPos);
+
+vec3 frx_getLight(sampler2D lightSampler, vec3 worldPos, vec3 fallback);
+
+bool frx_lightDataExists(sampler2D lightSampler, vec3 worldPos);
+</code></pre>
+<p><code>frx_getLightFiltered</code> Function returns the light color with filtering on.</p>
+<p><code>frx_getLightRaw</code> Function returns the light color with no filtering, meaning the raw color (per voxel).</p>
+<p><code>frx_getLight</code> Function returns the light color with filtering, and a fallback where there is no light data. (Likely, you can use the vanilla lightmap for fallback (<code>frx_fragLight.x</code>)</p>
+<p><code>frx_lightDataExists</code> Function checks whether or not the light data is uploaded for a specific region in the world</p>
+<h4 id="occlusion-data">Occlusion Data</h4>
+<p>This feature contains occlusion data, and you can define whether or not u want it on in the pipeline json object like so:</p>
+<pre><code class="language-json5">  coloredLights: {
+    useOcclusionData: true
+  }
+</code></pre>
+<p>Occlusion data lets you gain access to a function of a variety of data about the light occlusion.</p>
+<pre><code class="language-glsl">struct frx_LightData {
+    vec4 light;
+    bool isLightSource;
+    bool isOccluder;
+    bool isFullCube;
+};
+
+frx_LightData frx_getLightOcclusionData(sampler2D lightSampler, vec3 worldPos);
+</code></pre>
+<p>With a struct, you get the:</p>
+<p><code>light</code> unfiltered (raw) light color.</p>
+<p><code>isLightSource</code> Determinator for whether a given pixel is a pixel of a light source or not.</p>
+<p><code>isOccluder</code> Determinator for whether a given pixel is a pixel of an occluder or not.</p>
+<p><code>isFullCube</code> And a determinator for whether a given pixel is a pixel of a full cube or not (regular block unlike a slab or a carpet).</p>
+<p><code>frx_getLightOcclusionData</code> Function can give you all that data with a given light sampler, in this case, you may pass <code>"frex:textures/auto/colored_lights"</code> to a <code>sampler2D</code> to access the desired data.</p>
+<h3 id="normal-offset">Normal Offset</h3>
+<p>When sampling the light data, you may run into issues that have to do with certain faces of blocks being dark, or occlusion data not behaving properly.
+When using the general light functions, you may need to offset the worldPos by the world normals by a slight amount, <code>worldPos + frx_vertexNormal.xyz * 0.05</code> works out.</p>
+<p>However, for occlusion data,  you may want to watch out for the possibility of shifting the <code>worldPos</code> to a slight negative offset instead of a positive normal offset. 
+Say the <code>worldPos</code> has no offset applied, you may run into cases where you benefit adding a negative offset like so: <code>worldPos - frx_vertexNormal.xyz * 0.01</code>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../shadow_map/" class="btn btn-neutral float-left" title="Shadow map"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../shadow_map/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
