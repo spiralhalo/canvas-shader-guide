@@ -94,8 +94,6 @@ bool frx_lightDataExists(sampler2D lightSampler, vec3 worldPos);
 
 `frx_lightDataExists` Function checks whether or not the light data is uploaded for a specific region in the world
 
-**Note** that you may need to offset the worldPos by the world normals by a slight amount, `worldPos + frx_vertexNormal.xyz * 0.05` works out.
-
 
 #### Occlusion Data
 This feature contains occlusion data, and you can define whether or not u want it on in the pipeline json object like so:
@@ -129,5 +127,9 @@ With a struct, you get the:
 
 `frx_getLightOcclusionData` Function can give you all that data with a given light sampler, in this case, you may pass `"frex:textures/auto/colored_lights"` to a `sampler2D` to access the desired data.
 
-**Additionally, you may want to watch out for the possibility of shifting the `worldPos` to a slight negative offset instead of a positive normal offset. 
-Say the `worldPos` has no offset applied, you may run into cases where you benefit adding a negative offset like so: `worldPos - frx_vertexNormal.xyz * 0.01`.**
+### Normal Offset
+When sampling the light data, you may run into issues that have to do with certain faces of blocks being dark, or occlusion data not behaving properly.
+When using the general light functions, you may need to offset the worldPos by the world normals by a slight amount, `worldPos + frx_vertexNormal.xyz * 0.05` works out.
+
+However, for occlusion data,  you may want to watch out for the possibility of shifting the `worldPos` to a slight negative offset instead of a positive normal offset. 
+Say the `worldPos` has no offset applied, you may run into cases where you benefit adding a negative offset like so: `worldPos - frx_vertexNormal.xyz * 0.01`.
